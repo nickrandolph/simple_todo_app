@@ -9,6 +9,9 @@ import 'package:appcenter/appcenter.dart';
 import 'package:appcenter_analytics/appcenter_analytics.dart';
 import 'package:appcenter_crashes/appcenter_crashes.dart';
 
+/////////////  Import for Swagger /////////////
+import 'package:swagger/api.dart';
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -39,24 +42,44 @@ class _MyHomePageState extends State<MyHomePage> {
       ? "<< iOS App Center ID>> "
       : "<< Android App Center ID >>";
 
+  /////////////  Base url for the Simple ToDo service /////////////
+  static const _baseUrl = 'https://simpletodoservice.azurewebsites.net';
+
   //// Controller for TextField and List of tasks ////
   final TextEditingController eCtrl = new TextEditingController();
-  List<String> tasks = [];
+  /////////////  Change List to use Task /////////////
+  List<Task> tasks = [];
 
 /////////////  Override Initialise State /////////////
   @override
   void initState() {
     super.initState();
 
-    initAppCenter();
+    //initAppCenter();
+    loadData();
   }
 
-  /////////////  Initialise AppCenter /////////////
-  void initAppCenter() async {
-    // Initialise AppCenter to allow for event tracking and crash reporting
-    await AppCenter.start(
-        _appCenterIdentifier, [AppCenterAnalytics.id, AppCenterCrashes.id]);
-  }
+  // /////////////  Initialise AppCenter /////////////
+  // void initAppCenter() async {
+  //   // Initialise AppCenter to allow for event tracking and crash reporting
+  //   await AppCenter.start(
+  //       _appCenterIdentifier, [AppCenterAnalytics.id, AppCenterCrashes.id]);
+  // }
+
+  void loadData() async {
+  ////  Calling App Service ////
+
+  // Setup api client with base url and token returned by auth process
+  var client = ApiClient(basePath: _baseUrl);
+
+  var tasksApi = new TasksApi(client);
+
+  var downloadedTasks = await tasksApi.callGet();
+  setState(() {
+    tasks = downloadedTasks;
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +95,10 @@ class _MyHomePageState extends State<MyHomePage> {
               /////////////  Tracking event /////////////
               AppCenterAnalytics.trackEvent("Adding item", {"List Item": text});
 
-              tasks.add(text);
+              tasks.add(
+                new Task()..title = text,
+              );
+
               eCtrl.clear();
               setState(() {});
             },
@@ -84,7 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
               itemBuilder: (BuildContext ctxt, int index) {
                 return Padding(
                   padding: EdgeInsets.all(2),
-                  child: Text(tasks[index]),
+                  child: Text(tasks[index].title),
                 );
               },
             ),

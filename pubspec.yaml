@@ -22,6 +22,9 @@ dependencies:
   appcenter_analytics: ^0.2.1
   appcenter_crashes: ^0.2.1
   appcenter: ^0.2.1
+  http: '>=0.11.1 <0.12.0'
+  swagger: 
+    path: todo
 
 
   # The following adds the Cupertino Icons font to your application.
