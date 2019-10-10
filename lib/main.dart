@@ -25,10 +25,40 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  //// Controller for TextField and List of tasks ////
+  final TextEditingController eCtrl = new TextEditingController();
+  List<String> tasks = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
+      /////////////  Body of the app is made up of a single column /////////////
+      body: new Column(
+        children: [
+          /////////////  TextField to capture input /////////////
+          new TextField(
+            controller: eCtrl,
+            onSubmitted: (text) {
+              tasks.add(text);
+              eCtrl.clear();
+              setState(() {});
+            },
+          ),
+/////////////  Expand ListView to remaining space /////////////
+          new Expanded(
+            child: new ListView.builder(
+              itemCount: tasks.length,
+              itemBuilder: (BuildContext ctxt, int index) {
+                return Padding(
+                  padding: EdgeInsets.all(2),
+                  child: Text(tasks[index]),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
