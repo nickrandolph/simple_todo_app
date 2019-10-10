@@ -26,7 +26,8 @@ class TasksApi {
     List<String> contentTypes = [];
 
     String contentType = contentTypes.length > 0 ? contentTypes[0] : "application/json";
-    List<String> authNames = [];
+    //List<String> authNames = [];
+    List<String> authNames = ['Bearer'];
 
     if(contentType.startsWith("multipart/form-data")) {
       bool hasFields = false;

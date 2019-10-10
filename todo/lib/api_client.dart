@@ -18,9 +18,13 @@ class ApiClient {
   final _RegList = new RegExp(r'^List<(.*)>$');
   final _RegMap = new RegExp(r'^Map<String,(.*)>$');
 
+  // ApiClient({this.basePath: "https://localhost"}) {
+  //   // Setup authentications (key: authentication name, value: authentication).
+  // }
   ApiClient({this.basePath: "https://localhost"}) {
-    // Setup authentications (key: authentication name, value: authentication).
-  }
+  _authentications['Bearer'] = new OAuth();
+}
+
 
   void addDefaultHeader(String key, String value) {
      _defaultHeaderMap[key] = value;
