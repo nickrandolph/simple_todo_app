@@ -1,10 +1,5 @@
 import 'package:appcenter_analytics/appcenter_analytics.dart';
-
-/////////////  Imports for platform info /////////////
-import 'package:flutter/foundation.dart' show defaultTargetPlatform;
-import 'package:flutter/foundation.dart' show TargetPlatform;
 import 'package:flutter/material.dart';
-
 /////////////  Import for Swagger /////////////
 import 'package:swagger/api.dart';
 
@@ -15,8 +10,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'World\'s Best Flutter App',
-      darkTheme: ThemeData.dark(),
-      themeMode: ThemeMode.dark,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -35,28 +28,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  /////////////  Identifier used for initialising App Center /////////////
-  String _appCenterIdentifier = defaultTargetPlatform == TargetPlatform.iOS
-      ? "<< iOS App Center ID>> "
-      : "<< Android App Center ID >>";
-
-  /////////////  Instance of FlutterAppAuth /////////////
-
-  /////////////  Attributes required for authenticating with Azure B2C /////////////
-  final _clientId = 'a03d8224-6245-4149-aa42-8e1da5e7a4b3';
-  final _redirectUrl = 'com.builttoroam.simpletodo://oauthredirect';
-  final _discoveryUrl =
-      'https://simpletodo.b2clogin.com/simpletodo.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1_SignUpAndIn';
-  final List<String> _scopes = [
-    'openid',
-  ];
 
   /////////////  Base url for the Simple ToDo service /////////////
   static const _baseUrl = 'https://simpletodoservice.azurewebsites.net';
 
   //// Controller for TextField and List of tasks ////
   final TextEditingController eCtrl = new TextEditingController();
-
   /////////////  Change List to use Task /////////////
   List<Task> tasks = [];
 
@@ -68,14 +45,6 @@ class _MyHomePageState extends State<MyHomePage> {
     //initAppCenter();
     loadData();
   }
-
-  // /////////////  Initialise AppCenter /////////////
-  // void initAppCenter() async {
-  //   // Initialise AppCenter to allow for event tracking and crash reporting
-  //   await AppCenter.start(
-  //       _appCenterIdentifier, [AppCenterAnalytics.id, AppCenterCrashes.id]);
-  // }
-
   void loadData() async {
     ////  Calling App Service ////
 
@@ -83,6 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
     //var client = ApiClient(basePath: _baseUrl);
 // Setup api client with base url and token returned by auth process
     var client = ApiClient(basePath: _baseUrl);
+
 
     var tasksApi = new TasksApi(client);
 
@@ -92,6 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,36 +70,21 @@ class _MyHomePageState extends State<MyHomePage> {
       /////////////  Body of the app is made up of a single column /////////////
       body: new Column(
         children: [
-          SizedBox(height: 20,),
           /////////////  TextField to capture input /////////////
-          
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: new TextField(
+          new TextField(
+            controller: eCtrl,
+            onSubmitted: (text) {
+              /////////////  Tracking event /////////////
+              AppCenterAnalytics.trackEvent("Adding item", {"List Item": text});
 
-              style: TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                prefixIcon: Icon(Icons.work),
-                hintText: "Enter task",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(5)
-                ),
-              ),
-              controller: eCtrl,
-              onSubmitted: (text) {
-                /////////////  Tracking event /////////////
-                AppCenterAnalytics.trackEvent("Adding item", {"List Item": text});
+              tasks.add(
+                new Task()..title = text,
+              );
 
-                tasks.add(
-                  new Task()..title = text,
-                );
-
-                eCtrl.clear();
-                setState(() {});
-              },
-            ),
+              eCtrl.clear();
+              setState(() {});
+            },
           ),
-          SizedBox(height: 20,),
           /////////////  Expand ListView to remaining space /////////////
           new Expanded(
             child: new ListView.builder(
@@ -136,11 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
               itemBuilder: (BuildContext ctxt, int index) {
                 return Padding(
                   padding: EdgeInsets.all(2),
-                  child: Card(
-                      child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(tasks[index].title),
-                  )),
+                  child: Text(tasks[index].title),
                 );
               },
             ),
