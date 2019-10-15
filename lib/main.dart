@@ -100,21 +100,40 @@ class _MyHomePageState extends State<MyHomePage> {
 
           /////////////  Expand ListView to remaining space /////////////
           new Expanded(
-            child: new ListView.builder(
-              itemCount: tasks.length,
-              itemBuilder: (BuildContext ctxt, int index) {
+            child: ReorderableListView(
+              children: List.generate(tasks.length, (index)  {
                 return Padding(
+                  key: ValueKey("value$index"),
                   padding: EdgeInsets.all(2),
-                  child: Card(child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(tasks[index].title),
-                  )),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    child: Card(child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(tasks[index].title),
+                    )),
+                  ),
                 );
               },
             ),
+              onReorder: (old, newIndex){
+                setState(() {
+                  _updateMyItems(old, newIndex);
+                });
+              },
+          ),
           ),
         ],
       ),
     );
+  }
+
+  void _updateMyItems(int oldIndex, int newIndex) {
+    if(newIndex > oldIndex){
+      newIndex -= 1;
+    }
+
+    final Task item = tasks.removeAt(oldIndex);
+    tasks.insert(newIndex, item);
+
   }
 }
