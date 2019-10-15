@@ -92,7 +92,10 @@ class _MyHomePageState extends State<MyHomePage> {
               itemBuilder: (BuildContext ctxt, int index) {
                 return Padding(
                   padding: EdgeInsets.all(2),
-                  child: Text(tasks[index].title),
+                  child: Card(child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(tasks[index].title),
+                  )),
                 );
               },
             ),
