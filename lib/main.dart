@@ -72,21 +72,32 @@ class _MyHomePageState extends State<MyHomePage> {
       /////////////  Body of the app is made up of a single column /////////////
       body: new Column(
         children: [
+          SizedBox(height: 20,),
           /////////////  TextField to capture input /////////////
-          new TextField(
-            controller: eCtrl,
-            onSubmitted: (text) {
-              /////////////  Tracking event /////////////
-              AppCenterAnalytics.trackEvent("Adding item", {"List Item": text});
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: new TextField(
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.business),
+                hintText: "Enter task here",
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))
+              ),
+              controller: eCtrl,
+              onSubmitted: (text) {
+                /////////////  Tracking event /////////////
+                AppCenterAnalytics.trackEvent("Adding item", {"List Item": text});
 
-              tasks.add(
-                new Task()..title = text,
-              );
+                tasks.add(
+                  new Task()..title = text,
+                );
 
-              eCtrl.clear();
-              setState(() {});
-            },
+                eCtrl.clear();
+                setState(() {});
+              },
+            ),
           ),
+                    SizedBox(height: 20,),
+
           /////////////  Expand ListView to remaining space /////////////
           new Expanded(
             child: new ListView.builder(
