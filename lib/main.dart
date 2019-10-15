@@ -1,16 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:appcenter_analytics/appcenter_analytics.dart';
 
 /////////////  Imports for platform info /////////////
 import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/foundation.dart' show TargetPlatform;
-
-/////////////  Imports for App Center /////////////
-import 'package:appcenter/appcenter.dart';
-import 'package:appcenter_analytics/appcenter_analytics.dart';
-import 'package:appcenter_crashes/appcenter_crashes.dart';
-
-/////////////  Import for Flutter_AppAuth /////////////
-import 'package:flutter_appauth/flutter_appauth.dart';
+import 'package:flutter/material.dart';
 
 /////////////  Import for Swagger /////////////
 import 'package:swagger/api.dart';
@@ -22,6 +15,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'World\'s Best Flutter App',
+      darkTheme: ThemeData.dark(),
+      themeMode: ThemeMode.dark,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -45,25 +40,23 @@ class _MyHomePageState extends State<MyHomePage> {
       ? "<< iOS App Center ID>> "
       : "<< Android App Center ID >>";
 
-      /////////////  Instance of FlutterAppAuth /////////////
-FlutterAppAuth _appAuth = FlutterAppAuth();
+  /////////////  Instance of FlutterAppAuth /////////////
 
-
-      /////////////  Attributes required for authenticating with Azure B2C /////////////
-final _clientId = 'a03d8224-6245-4149-aa42-8e1da5e7a4b3';
-final _redirectUrl = 'com.builttoroam.simpletodo://oauthredirect';
-final _discoveryUrl =
-    'https://simpletodo.b2clogin.com/simpletodo.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1_SignUpAndIn';
-final List<String> _scopes = [
-  'openid',
-];
-
+  /////////////  Attributes required for authenticating with Azure B2C /////////////
+  final _clientId = 'a03d8224-6245-4149-aa42-8e1da5e7a4b3';
+  final _redirectUrl = 'com.builttoroam.simpletodo://oauthredirect';
+  final _discoveryUrl =
+      'https://simpletodo.b2clogin.com/simpletodo.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1_SignUpAndIn';
+  final List<String> _scopes = [
+    'openid',
+  ];
 
   /////////////  Base url for the Simple ToDo service /////////////
   static const _baseUrl = 'https://simpletodoservice.azurewebsites.net';
 
   //// Controller for TextField and List of tasks ////
   final TextEditingController eCtrl = new TextEditingController();
+
   /////////////  Change List to use Task /////////////
   List<Task> tasks = [];
 
@@ -84,28 +77,20 @@ final List<String> _scopes = [
   // }
 
   void loadData() async {
-  /////////////  Authenticate with Azure B2C /////////////
-  var result = await _appAuth.authorizeAndExchangeCode(
-      AuthorizationTokenRequest(_clientId, _redirectUrl,
-          discoveryUrl: _discoveryUrl, scopes: _scopes));
+    ////  Calling App Service ////
 
-  ////  Calling App Service ////
-
-  // Setup api client with base url and token returned by auth process
-  //var client = ApiClient(basePath: _baseUrl);
+    // Setup api client with base url and token returned by auth process
+    //var client = ApiClient(basePath: _baseUrl);
 // Setup api client with base url and token returned by auth process
-var client = ApiClient(basePath: _baseUrl);
-client.setAccessToken(result.idToken);
+    var client = ApiClient(basePath: _baseUrl);
 
+    var tasksApi = new TasksApi(client);
 
-  var tasksApi = new TasksApi(client);
-
-  var downloadedTasks = await tasksApi.callGet();
-  setState(() {
-    tasks = downloadedTasks;
-  });
-}
-
+    var downloadedTasks = await tasksApi.callGet();
+    setState(() {
+      tasks = downloadedTasks;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,21 +99,36 @@ client.setAccessToken(result.idToken);
       /////////////  Body of the app is made up of a single column /////////////
       body: new Column(
         children: [
+          SizedBox(height: 20,),
           /////////////  TextField to capture input /////////////
-          new TextField(
-            controller: eCtrl,
-            onSubmitted: (text) {
-              /////////////  Tracking event /////////////
-              AppCenterAnalytics.trackEvent("Adding item", {"List Item": text});
+          
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: new TextField(
 
-              tasks.add(
-                new Task()..title = text,
-              );
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.work),
+                hintText: "Enter task",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5)
+                ),
+              ),
+              controller: eCtrl,
+              onSubmitted: (text) {
+                /////////////  Tracking event /////////////
+                AppCenterAnalytics.trackEvent("Adding item", {"List Item": text});
 
-              eCtrl.clear();
-              setState(() {});
-            },
+                tasks.add(
+                  new Task()..title = text,
+                );
+
+                eCtrl.clear();
+                setState(() {});
+              },
+            ),
           ),
+          SizedBox(height: 20,),
           /////////////  Expand ListView to remaining space /////////////
           new Expanded(
             child: new ListView.builder(
@@ -136,7 +136,11 @@ client.setAccessToken(result.idToken);
               itemBuilder: (BuildContext ctxt, int index) {
                 return Padding(
                   padding: EdgeInsets.all(2),
-                  child: Text(tasks[index].title),
+                  child: Card(
+                      child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(tasks[index].title),
+                  )),
                 );
               },
             ),
