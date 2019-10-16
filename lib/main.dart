@@ -1,17 +1,5 @@
-import 'package:flutter/material.dart';
-
-/////////////  Imports for platform info /////////////
-import 'package:flutter/foundation.dart' show defaultTargetPlatform;
-import 'package:flutter/foundation.dart' show TargetPlatform;
-
-/////////////  Imports for App Center /////////////
-import 'package:appcenter/appcenter.dart';
 import 'package:appcenter_analytics/appcenter_analytics.dart';
-import 'package:appcenter_crashes/appcenter_crashes.dart';
-
-/////////////  Import for Flutter_AppAuth /////////////
-import 'package:flutter_appauth/flutter_appauth.dart';
-
+import 'package:flutter/material.dart';
 /////////////  Import for Swagger /////////////
 import 'package:swagger/api.dart';
 
@@ -40,24 +28,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  /////////////  Identifier used for initialising App Center /////////////
-  String _appCenterIdentifier = defaultTargetPlatform == TargetPlatform.iOS
-      ? "<< iOS App Center ID>> "
-      : "<< Android App Center ID >>";
-
-      /////////////  Instance of FlutterAppAuth /////////////
-FlutterAppAuth _appAuth = FlutterAppAuth();
-
-
-      /////////////  Attributes required for authenticating with Azure B2C /////////////
-final _clientId = 'a03d8224-6245-4149-aa42-8e1da5e7a4b3';
-final _redirectUrl = 'com.builttoroam.simpletodo://oauthredirect';
-final _discoveryUrl =
-    'https://simpletodo.b2clogin.com/simpletodo.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1_SignUpAndIn';
-final List<String> _scopes = [
-  'openid',
-];
-
 
   /////////////  Base url for the Simple ToDo service /////////////
   static const _baseUrl = 'https://simpletodoservice.azurewebsites.net';
@@ -84,10 +54,6 @@ final List<String> _scopes = [
   // }
 
   void loadData() async {
-  /////////////  Authenticate with Azure B2C /////////////
-  var result = await _appAuth.authorizeAndExchangeCode(
-      AuthorizationTokenRequest(_clientId, _redirectUrl,
-          discoveryUrl: _discoveryUrl, scopes: _scopes));
 
   ////  Calling App Service ////
 
@@ -95,7 +61,6 @@ final List<String> _scopes = [
   //var client = ApiClient(basePath: _baseUrl);
 // Setup api client with base url and token returned by auth process
 var client = ApiClient(basePath: _baseUrl);
-client.setAccessToken(result.idToken);
 
 
   var tasksApi = new TasksApi(client);
@@ -135,6 +100,7 @@ client.setAccessToken(result.idToken);
               itemCount: tasks.length,
               itemBuilder: (BuildContext ctxt, int index) {
                 return Padding(
+                  key: ValueKey("value$index"),
                   padding: EdgeInsets.all(2),
                   child: Text(tasks[index].title),
                 );
@@ -144,5 +110,15 @@ client.setAccessToken(result.idToken);
         ],
       ),
     );
+  }
+
+  void _updateMyItems(int oldIndex, int newIndex) {
+    if(newIndex > oldIndex){
+      newIndex -= 1;
+    }
+
+    final Task item = tasks.removeAt(oldIndex);
+    tasks.insert(newIndex, item);
+
   }
 }
