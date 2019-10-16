@@ -1,6 +1,4 @@
-import 'package:appcenter_analytics/appcenter_analytics.dart';
 import 'package:flutter/material.dart';
-/////////////  Import for Swagger /////////////
 import 'package:swagger/api.dart';
 
 void main() => runApp(MyApp());
@@ -29,10 +27,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  /////////////  Base url for the Simple ToDo service /////////////
-  static const _baseUrl = 'https://simpletodoservice.azurewebsites.net';
-
-  //// Controller for TextField and List of tasks ////
   final TextEditingController eCtrl = new TextEditingController();
   /////////////  Change List to use Task /////////////
   List<Task> tasks = [];
@@ -41,36 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-
-    //initAppCenter();
-    loadData();
   }
-
-  // /////////////  Initialise AppCenter /////////////
-  // void initAppCenter() async {
-  //   // Initialise AppCenter to allow for event tracking and crash reporting
-  //   await AppCenter.start(
-  //       _appCenterIdentifier, [AppCenterAnalytics.id, AppCenterCrashes.id]);
-  // }
-
-  void loadData() async {
-
-  ////  Calling App Service ////
-
-  // Setup api client with base url and token returned by auth process
-  //var client = ApiClient(basePath: _baseUrl);
-// Setup api client with base url and token returned by auth process
-var client = ApiClient(basePath: _baseUrl);
-
-
-  var tasksApi = new TasksApi(client);
-
-  var downloadedTasks = await tasksApi.callGet();
-  setState(() {
-    tasks = downloadedTasks;
-  });
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -83,8 +48,6 @@ var client = ApiClient(basePath: _baseUrl);
           new TextField(
             controller: eCtrl,
             onSubmitted: (text) {
-              /////////////  Tracking event /////////////
-              AppCenterAnalytics.trackEvent("Adding item", {"List Item": text});
 
               tasks.add(
                 new Task()..title = text,
